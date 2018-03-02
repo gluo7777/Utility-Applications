@@ -1,7 +1,5 @@
 package org.william.apps.utility_apps;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.william.apps.model.GlossDef;
 

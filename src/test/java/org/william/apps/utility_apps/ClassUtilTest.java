@@ -3,7 +3,6 @@ package org.william.apps.utility_apps;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -69,14 +68,14 @@ public class ClassUtilTest {
 	public void testValueMap() {
 //		Util.base.calcRunTime(() -> Util.clazz.getValueMap(pojo));
 //		Util.base.calcRunTime(() -> Util.clazz.getValueMap(pojo));
-		Map<String, Object> values = Util.clazz.getValueMap(pojo);
+//		Map<String, Object> values = Util.clazz.getValueMap(pojo);
 		// assertThat(values.size(), equalTo(4s));
-		System.out.println(values.toString());
+//		System.out.println(values.toString());
 	}
 
 	@Test
 	public void testPrintPojo() {
 		System.out.println(Arrays.toString(pojo.getClass().getFields()));
-		Util.clazz.printInfoAboutType(pojo);
+//		Util.clazz.printInfoAboutType(pojo);
 	}
 }
