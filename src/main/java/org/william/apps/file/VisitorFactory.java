@@ -1,4 +1,4 @@
-package org.william.apps.runner;
+package org.william.apps.file;
 
 import static java.util.Arrays.asList;
 import static org.william.apps.file.PostFunction.Factory.logger;
@@ -13,16 +13,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import org.william.apps.file.CustomFileVisitor;
-import org.william.apps.file.Operation;
-
-public class UtilFactory {
+public class VisitorFactory {
 
 	public static void main(String[] args) {
 		List<Path> roots = buildPaths(args);
 		roots.stream().forEach(directory -> {
 			try {
 				System.out.println(directory.resolveSibling("2423423"));
+				System.out.println(directory.resolve(Paths.get("C:\\Users\\gluo7\\Downloads\\randomtestdir\\newer folder\\erwerew")));
 				renameDirectory(directory, "buttface");
 				Files.walkFileTree(directory, buildFileCapitalizer());
 			} catch (IOException e) {

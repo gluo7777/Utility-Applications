@@ -51,15 +51,24 @@ public class CustomFileVisitor extends SimpleFileVisitor<Path> {
 		if (predicates.size() > functions.size())
 			throw new RuntimeException();
 		int i = 0;
+		FileVisitResult result = FileVisitResult.TERMINATE;
 		while (i < predicates.size()) {
 			if (!predicates.get(i).test(name, attrs))
 				return FileVisitResult.SKIP_SUBTREE;
-			functions.get(i).apply(dir, attrs);
+			if (!(result = nextEvent(dir, attrs, functions, i)).equals(FileVisitResult.CONTINUE))
+				return result;
 			i++;
 		}
-		while (i < functions.size())
-			functions.get(i++).apply(dir, attrs);
-		return FileVisitResult.CONTINUE;
+		while (i < functions.size()) {
+			if (!(result = nextEvent(dir, attrs, functions, i)).equals(FileVisitResult.CONTINUE))
+				return result;
+			i++;
+		}
+		return result;
+	}
+
+	private FileVisitResult nextEvent(Path dir, BasicFileAttributes attrs, List<VisitFunction<Path>> functions, int i) {
+		return functions.get(i).apply(dir, attrs);
 	}
 
 	private FileVisitResult after(Path file, IOException exc, List<PostFunction> functions) {
