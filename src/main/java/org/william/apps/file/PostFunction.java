@@ -5,6 +5,8 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.util.function.BiFunction;
 
+import org.william.apps.strings.StringFunction;
+
 public interface PostFunction extends BiFunction<Path, IOException, FileVisitResult> {
 	static class Factory {
 
@@ -22,6 +24,25 @@ public interface PostFunction extends BiFunction<Path, IOException, FileVisitRes
 					exc.printStackTrace(System.out);
 				return FileVisitResult.CONTINUE;
 			};
+		}
+
+		public static PostFunction deleteDirectory(StringFunction function) {
+			return new PostFunction() {
+				@Override
+				public FileVisitResult apply(Path file, IOException u) {
+					try {
+						FileUtil.deleteFile(file);
+					} catch (IOException e) {
+						return defaultFileVisitErrorHandling(e);
+					}
+					return FileVisitResult.CONTINUE;
+				}
+			};
+		}
+
+		public static FileVisitResult defaultFileVisitErrorHandling(IOException e) {
+			e.printStackTrace();
+			return FileVisitResult.TERMINATE;
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package org.william.apps.utility_apps;
+package org.william.apps.file;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -9,8 +9,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public enum FileUtil {
-	INSTANCE;
+public class FileUtil {
 
 	public static boolean renameFile(Path oldFile, String newFileName) throws IOException {
 		Path newFile = oldFile.resolveSibling(newFileName);
@@ -22,6 +21,10 @@ public enum FileUtil {
 		return Files.copy(oldFile, target.resolve(oldFile.getFileName()), StandardCopyOption.ATOMIC_MOVE);
 	}
 
+	public static void deleteFile(Path oldFile) throws IOException {
+		Files.deleteIfExists(oldFile);
+	}
+	
 	public static void copyDirectory(Path oldDir, Path target, boolean deleteAfter) throws IOException {
 		Path targetRootDir = copyFile(oldDir, target);
 		if (folderNotEmpty(targetRootDir)) {
@@ -53,5 +56,9 @@ public enum FileUtil {
 
 	public static boolean folderNotEmpty(Path newDir) {
 		return Files.exists(newDir) && newDir.toFile().list().length > 0;
+	}
+	
+	public static String simpleFileName(Path file) {
+		return file.getFileName().toString();
 	}
 }

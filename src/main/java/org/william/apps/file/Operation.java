@@ -1,27 +1,31 @@
 package org.william.apps.file;
 
-import java.nio.file.Path;
+import java.util.LinkedList;
 import java.util.List;
 
 public final class Operation {
-	private final List<ReadPredicate<String>> predicates;
-	private final List<VisitFunction<Path>> visitFunctions;
+	private final List<VisitPredicate> predicates;
+	private final List<VisitFunction> visitFunctions;
 	private final List<PostFunction> postFunctions;
 
-	private Operation(List<ReadPredicate<String>> predicates, List<VisitFunction<Path>> visitFunctions,
+	private Operation(List<VisitPredicate> predicates, List<VisitFunction> visitFunctions,
 			List<PostFunction> postFunctions) {
 		super();
 		this.predicates = predicates;
 		this.visitFunctions = visitFunctions;
 		this.postFunctions = postFunctions;
 	}
+	
+	public static Operation newInstance() {
+		return new Operation(new LinkedList<>(), new LinkedList<>(), new LinkedList<>());
+	}
 
-	public static Operation newVisitOperation(List<ReadPredicate<String>> predicates,
-			List<VisitFunction<Path>> visitFunctions) {
+	public static Operation newVisitOperation(List<VisitPredicate> predicates,
+			List<VisitFunction> visitFunctions) {
 		return new Operation(predicates, visitFunctions, null);
 	}
 
-	public static Operation newPostOperation(List<ReadPredicate<String>> predicates, List<PostFunction> postFunctions) {
+	public static Operation newPostOperation(List<VisitPredicate> predicates, List<PostFunction> postFunctions) {
 		return new Operation(predicates, null, postFunctions);
 	}
 	
@@ -29,11 +33,11 @@ public final class Operation {
 		return new Operation(null, null, postFunctions);
 	}
 
-	public final List<ReadPredicate<String>> getPredicates() {
+	public final List<VisitPredicate> getPredicates() {
 		return predicates;
 	}
 
-	public final List<VisitFunction<Path>> getVisitFunctions() {
+	public final List<VisitFunction> getVisitFunctions() {
 		return visitFunctions;
 	}
 

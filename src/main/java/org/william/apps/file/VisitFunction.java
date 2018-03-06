@@ -3,63 +3,86 @@ package org.william.apps.file;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.function.BiFunction;
 
-import org.william.apps.utility_apps.FileUtil;
+import org.william.apps.strings.StringFunction;
 
-import static org.apache.commons.lang3.StringUtils.capitalize;
-
-public interface VisitFunction<T> extends BiFunction<T, BasicFileAttributes, FileVisitResult> {
+public interface VisitFunction extends BiFunction<Path, BasicFileAttributes, FileVisitResult> {
 	static class Factory {
-		public static VisitFunction<Path> collector(Collection<Path> c) {
+		public static VisitFunction collector(Collection<Path> c) {
 			return (t, u) -> {
 				c.add(t);
 				return FileVisitResult.CONTINUE;
 			};
 		}
+		
+		public static VisitFunction fileNameTransformer(StringFunction function) {
+			return new VisitFunction() {
 
-		public static VisitFunction<Path> capitalizer() {
-			return new VisitFunction<Path>() {
 				@Override
 				public FileVisitResult apply(Path file, BasicFileAttributes u) {
 					String oldName = file.getFileName().toString();
 					try {
-						if (Files.isDirectory(file, LinkOption.NOFOLLOW_LINKS)) {
-							renameDirectory(file, capitalize(oldName));
-						} else {
-							FileUtil.renameFile(file, capitalize(oldName));
-						}
+						FileUtil.renameFile(file, function.apply(oldName));
 					} catch (IOException e) {
-						e.printStackTrace();
-						return FileVisitResult.TERMINATE;
+						return defaultFileVisitErrorHandling(e);
 					}
 					return FileVisitResult.CONTINUE;
 				}
 			};
 		}
 		
-		public static VisitFunction<Path> copier(Path newPath) {
-			return new VisitFunction<Path>() {
+		public static VisitFunction directoryNameTransformer(StringFunction function) {
+			return new VisitFunction() {
+				@Override
+				public FileVisitResult apply(Path dir, BasicFileAttributes u) {
+					String oldName = dir.getFileName().toString();
+					try {
+						Path newDir = dir.resolveSibling(function.apply(oldName));
+						FileUtil.copyDirectory(dir, newDir, true);
+					} catch (IOException e) {
+						return defaultFileVisitErrorHandling(e);
+					}
+					return FileVisitResult.CONTINUE;
+				}
+			};
+		}
+		
+		public static VisitFunction fileCopier(Path targetDirectory) {
+			return new VisitFunction() {
 				@Override
 				public FileVisitResult apply(Path file, BasicFileAttributes u) {
 					try {
-						Files.copy(file, newPath.resolve(file), StandardCopyOption.COPY_ATTRIBUTES);
+						FileUtil.copyFile(file, targetDirectory);
 					} catch (IOException e) {
-						e.printStackTrace();
-						return FileVisitResult.TERMINATE;
+						return defaultFileVisitErrorHandling(e);
 					}
 					return FileVisitResult.CONTINUE;
 				}
 			};
 		}
 		
-		public static void renameDirectory(Path dir, String newName) throws IOException {
-			Files.copy(dir, dir.resolveSibling(newName), StandardCopyOption.COPY_ATTRIBUTES);
-		}	
+		public static VisitFunction fileDeleter() {
+			return new VisitFunction() {
+				@Override
+				public FileVisitResult apply(Path file, BasicFileAttributes u) {
+					try {
+						FileUtil.deleteFile(file);
+					} catch (IOException e) {
+						return defaultFileVisitErrorHandling(e);
+					}
+					return FileVisitResult.CONTINUE;
+				}
+			};
+		}
+
+		public static FileVisitResult defaultFileVisitErrorHandling(IOException e) {
+			e.printStackTrace();
+			return FileVisitResult.TERMINATE;
+		}
+		
 	}
 }

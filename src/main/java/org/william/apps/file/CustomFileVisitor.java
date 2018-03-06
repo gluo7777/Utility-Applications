@@ -14,6 +14,14 @@ public class CustomFileVisitor extends SimpleFileVisitor<Path> {
 	private Operation visitFileFailedOperation;
 	private Operation postVisitDirectoryOperation;
 
+	private CustomFileVisitor() {
+		super();
+		this.preVisitDirectoryOperation = Operation.newInstance();
+		this.visitFileOperation = Operation.newInstance();
+		this.visitFileFailedOperation = Operation.newInstance();
+		this.postVisitDirectoryOperation = Operation.newInstance();
+	}
+
 	public final Operation getPreVisitDirectoryOperation() {
 		return preVisitDirectoryOperation;
 	}
@@ -46,14 +54,14 @@ public class CustomFileVisitor extends SimpleFileVisitor<Path> {
 		this.postVisitDirectoryOperation = postVisitDirectoryOperation;
 	}
 
-	private FileVisitResult visit(Path dir, BasicFileAttributes attrs, String name,
-			List<ReadPredicate<String>> predicates, List<VisitFunction<Path>> functions) {
+	private FileVisitResult visit(Path dir, BasicFileAttributes attrs,
+			List<VisitPredicate> predicates, List<VisitFunction> functions) {
 		if (predicates.size() > functions.size())
 			throw new RuntimeException();
 		int i = 0;
 		FileVisitResult result = FileVisitResult.TERMINATE;
 		while (i < predicates.size()) {
-			if (!predicates.get(i).test(name, attrs))
+			if (!predicates.get(i).test(dir, attrs))
 				return FileVisitResult.SKIP_SUBTREE;
 			if (!(result = nextEvent(dir, attrs, functions, i)).equals(FileVisitResult.CONTINUE))
 				return result;
@@ -67,7 +75,7 @@ public class CustomFileVisitor extends SimpleFileVisitor<Path> {
 		return result;
 	}
 
-	private FileVisitResult nextEvent(Path dir, BasicFileAttributes attrs, List<VisitFunction<Path>> functions, int i) {
+	private FileVisitResult nextEvent(Path dir, BasicFileAttributes attrs, List<VisitFunction> functions, int i) {
 		return functions.get(i).apply(dir, attrs);
 	}
 
@@ -83,18 +91,16 @@ public class CustomFileVisitor extends SimpleFileVisitor<Path> {
 
 	@Override
 	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-		String name = simpleFileName(dir);
-		List<ReadPredicate<String>> predicates = this.preVisitDirectoryOperation.getPredicates();
-		List<VisitFunction<Path>> functions = this.preVisitDirectoryOperation.getVisitFunctions();
-		return visit(dir, attrs, name, predicates, functions);
+		List<VisitPredicate> predicates = this.preVisitDirectoryOperation.getPredicates();
+		List<VisitFunction> functions = this.preVisitDirectoryOperation.getVisitFunctions();
+		return visit(dir, attrs, predicates, functions);
 	}
 
 	@Override
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-		String name = simpleFileName(file);
-		List<ReadPredicate<String>> predicates = this.visitFileOperation.getPredicates();
-		List<VisitFunction<Path>> functions = this.visitFileOperation.getVisitFunctions();
-		return visit(file, attrs, name, predicates, functions);
+		List<VisitPredicate> predicates = this.visitFileOperation.getPredicates();
+		List<VisitFunction> functions = this.visitFileOperation.getVisitFunctions();
+		return visit(file, attrs, predicates, functions);
 	}
 
 	@Override
@@ -105,9 +111,5 @@ public class CustomFileVisitor extends SimpleFileVisitor<Path> {
 	@Override
 	public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
 		return after(dir, exc, this.postVisitDirectoryOperation.getPostFunctions());
-	}
-
-	private String simpleFileName(Path file) {
-		return file.getFileName().toString();
 	}
 }
