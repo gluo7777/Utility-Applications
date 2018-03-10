@@ -8,6 +8,10 @@ import java.util.regex.Pattern;
 
 public interface StringFunction extends Function<String, String> {
 	public static class Factory {
+		public static StringFunction defaultStringFunction() {
+			return s -> s;
+		}
+		
 		public static StringFunction createCapitalizer() {
 			return s -> capitalize(s);
 		}

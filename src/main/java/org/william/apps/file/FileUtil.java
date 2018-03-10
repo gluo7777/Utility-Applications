@@ -8,6 +8,10 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.FileUtils;
 
 public class FileUtil {
 
@@ -24,7 +28,7 @@ public class FileUtil {
 	public static void deleteFile(Path oldFile) throws IOException {
 		Files.deleteIfExists(oldFile);
 	}
-	
+
 	public static void copyDirectory(Path oldDir, Path target, boolean deleteAfter) throws IOException {
 		Path targetRootDir = copyFile(oldDir, target);
 		if (folderNotEmpty(targetRootDir)) {
@@ -57,7 +61,35 @@ public class FileUtil {
 	public static boolean folderNotEmpty(Path newDir) {
 		return Files.exists(newDir) && newDir.toFile().list().length > 0;
 	}
-	
+
+	/**
+	 * 
+	 * @param file to search and replace
+	 * @param findRegex 
+	 * @param replaceRegex
+	 * @return number of matched & modified character sequences
+	 * @throws IOException
+	 */
+	public static int findReplaceInFile(Path file, String findRegex, String replaceRegex) throws IOException {
+		Pattern findPattern = Pattern.compile(findRegex, Pattern.MULTILINE);
+		String newFileContents = FileUtils.readFileToString(file.toFile());
+		Matcher matcher = findPattern.matcher(newFileContents);
+		StringBuffer buf = new StringBuffer();
+		int count = 0;
+		while (matcher.find()) {
+			count++;
+			matcher.appendReplacement(buf, replaceRegex);
+		}
+		newFileContents = matcher.appendTail(buf).toString();
+		FileUtils.writeStringToFile(file.toFile(), newFileContents);
+		return count;
+	}
+
+	public static Path pathToCopy(Path file, String append) throws IOException {
+		String tempFileName = file.getFileName().toString().concat(append);
+		return file.resolveSibling(tempFileName);
+	}
+
 	public static String simpleFileName(Path file) {
 		return file.getFileName().toString();
 	}
