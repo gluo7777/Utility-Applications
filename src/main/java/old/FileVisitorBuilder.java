@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import org.william.apps.functions.PostFunction;
-import org.william.apps.functions.VisitFunction;
-import org.william.apps.functions.VisitFunction.Factory;
 import org.william.apps.utils.BaseUtil;
 
 public class FileVisitorBuilder {
