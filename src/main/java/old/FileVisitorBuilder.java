@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import org.william.apps.file.PostFunction;
-import org.william.apps.file.VisitFunction;
-import org.william.apps.file.VisitFunction.Factory;
-import org.william.apps.utility_apps.Util;
+import org.william.apps.functions.PostFunction;
+import org.william.apps.functions.VisitFunction;
+import org.william.apps.functions.VisitFunction.Factory;
+import org.william.apps.utils.BaseUtil;
 
 public class FileVisitorBuilder {
 
@@ -28,17 +28,17 @@ public class FileVisitorBuilder {
 	private FileOperation<PostFunction> visitFailedOperations, postVisitDirectoryOperations;
 
 	public final FileVisitorBuilder setOptions(Option... options) {
-		this.options = Util.INST.arrayToSet(options);
+		this.options = BaseUtil.INST.arrayToSet(options);
 		return this;
 	}
 
 	public final FileVisitorBuilder setFilesToIgnore(String... filesToIgnore) {
-		this.filesToIgnore = Util.INST.arrayToSet(filesToIgnore);
+		this.filesToIgnore = BaseUtil.INST.arrayToSet(filesToIgnore);
 		return this;
 	}
 
 	public final FileVisitorBuilder setDirectoriesToIgnore(String... directoriesToIgnore) {
-		this.directoriesToIgnore = Util.INST.arrayToSet(directoriesToIgnore);
+		this.directoriesToIgnore = BaseUtil.INST.arrayToSet(directoriesToIgnore);
 		return this;
 	}
 
